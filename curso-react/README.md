@@ -22,3 +22,5 @@ npm run dev
 npm install @twind/core@1.1.3 
     @twind/preset-autoprefix@1.0.7 
     @twind/preset-tailwind@1.1.4
+
+npm install react-router@7.14.1
