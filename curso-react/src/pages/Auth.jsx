@@ -3,24 +3,23 @@ import {Link} from 'react-router';
 
 function Auth(){
     /*const [variavel, funcaoAlteraVariavel] = useState('valor inicial');*/
-    const [batatinha, setBatatinha] = useState(2);
-
-    function sub(){
-        setBatatinha(batatinha - 1)
-    }
+    const [email, setEmail] = useState("")
+    
 
     return(
 <div className="h-full flex">
     <div className="w-1/2 mx-auto my-auto p-4 bg-blue-100 rounded-lg shadow-md flex flex-col">
         <Link to="/" className="mb-5">Voltar</Link>
 
-        <div className="bg-red-100 rounded-full p-2" onClick={sub}>-</div>
-        {batatinha}
-        <div className="bg-green-100 rounded-full p-2" onClick={() => setBatatinha(batatinha +1)}>+</div>
-
         <form className="flex flex-col">
             <span className="text-left">Email: </span>
-            <input id="iEmailLogin" type="email" placeholder="Digite o seu email cadastro" />
+            <input 
+                type="email" 
+                value={email}
+                placeholder="Digite o seu email cadastro"
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            {email}
             
             <span className="text-left">Senha: </span>
             <input id="iPassLogin" type="password" placeholder="Digite sua senha cadastrada" />
