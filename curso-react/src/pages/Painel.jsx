@@ -3,7 +3,6 @@ import {Link} from 'react-router';
 
 function Painel(){
     const [modal, setModal ] = useState(false)
-    
 
     return(
 <div>
@@ -42,6 +41,7 @@ function Painel(){
     </div>
 )}
 
+<a onClick={() => setModal(true)} className="rounded-full bg-primary text-white px-4 py-3 fixed bottom-0 right-0"> + </a>
 
     <table>
         <thead>
@@ -54,7 +54,6 @@ function Painel(){
         </tbody>
     </table>
 
-    <a onClick={() => setModal(true)} className="rounded-full bg-primary text-white px-4 py-3 fixed bottom-0 right-0"> + </a>
 </div>
     )
 }
