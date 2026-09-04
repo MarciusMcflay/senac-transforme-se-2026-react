@@ -2,7 +2,18 @@ import { useState } from 'react';
 import {Link} from 'react-router';
 
 function Painel(){
-    const [modal, setModal ] = useState(false)
+    const [modal, setModal ] = useState(false) //bollean
+    const [users, setUsers] = useState([]) //vetor
+    const [user, setUser] = useState({}) //objeto
+
+
+    function handleRegister(){
+        const newUsers = [...users, user]
+        setUsers(newUsers)
+        localStorage.setItem('users', JSON.stringify(newUsers))
+        setUser({})
+        setModal(false)
+    }
 
     return(
 <div>
@@ -21,21 +32,22 @@ function Painel(){
                 rounded-full cursor-pointer">
                 X
             </a>
+
             <h2>Cadastre um novo usuário</h2>
             <p>Preencha as informações abaixo</p>
-
+            
             <form className="flex flex-col">
                 Nome:
-                <input id="iName" type="text" placeholder="Digite seu nome completo" />
+                <input onChange={ (e) => setUser({...user, nome: e.target.value }) } type="text" placeholder="Digite seu nome completo" />
                 Email:
-                <input id="iEmail" type="email" placeholder="Digite o seu melhor email" />
+                <input onChange={ (e) => setUser({...user, email: e.target.value }) }  type="email" placeholder="Digite o seu melhor email" />
     
                 Senha:
-                <input id="iPass" type="password" placeholder="Letra maiúscula e números" />
+                <input onChange={ (e) => setUser({...user, senha: e.target.value }) }  type="password" placeholder="Letra maiúscula e números" />
                 Data de nascimento:
-                <input id="iBirth" type="date" />
+                <input onChange={ (e) => setUser({...user, nascimento: e.target.value }) }  type="date" />
        
-                <a id="formRegister" className="mt-5 bg-primary text-white text-center rounded-md py-2">Salvar</a>
+                <a onClick={handleRegister} className="mt-5 bg-primary text-white text-center rounded-md py-2">Salvar</a>
             </form>
         </div>
     </div>
