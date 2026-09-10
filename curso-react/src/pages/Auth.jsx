@@ -27,6 +27,7 @@ function Auth(){
 
         if(user.senha == pass){
             setMsg("Login realizado com sucesso.");
+            
             localStorage.setItem(
                 'logged',
                 JSON.stringify(user)
