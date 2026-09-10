@@ -6,6 +6,8 @@ function Painel(){
     const [users, setUsers] = useState([]) //vetor
     const [user, setUser] = useState({}) //objeto
     const [logged, setLogged ] = useState({})
+    const [index, setIndex ] = useState(-1)
+    const [isEdit, setIsEdit ] = useState(false)
 
     useEffect(
         ()=>{
@@ -20,17 +22,41 @@ function Painel(){
         if(usersTemp) setUsers(usersTemp)
     },[])
 
-    function updateUser(pUser){
+    function updateUser(pUser, i){
         setModal(true)
         setUser(pUser)
+        setIndex(i)
+    }
+
+    function deleteUser(index){
+
+        const newUsers = users.filter((u, i) => {
+            return i != index
+        })
+
+        setUsers(newUsers)
+
+        localStorage.setItem(
+            'users',
+            JSON.stringify(newUsers)
+        )
     }
 
     function handleRegister(){
-        const newUsers = [...users, user]
+        let newUsers = []
+        if(index !=-1){
+            newUsers = [...users]
+            newUsers[index] = user
+        }else{
+            newUsers = [...users, user]
+        }
+
         setUsers(newUsers)
         localStorage.setItem('users', JSON.stringify(newUsers))
         setUser({})
         setModal(false)
+        setIndex(-1)
+        setIsEdit(false)
     }
 
     return(
@@ -53,7 +79,7 @@ function Painel(){
 
             <h2>Cadastre um novo usuário</h2>
             <p>Preencha as informações abaixo</p>
-            
+            {isEdit ?(
             <form className="flex flex-col">
                 Nome:
                 <input value={user.nome} onChange={ (e) => setUser({...user, nome: e.target.value }) } type="text" placeholder="Digite seu nome completo" />
@@ -66,12 +92,23 @@ function Painel(){
                 <input value={user.nascimento} onChange={ (e) => setUser({...user, nascimento: e.target.value }) }  type="date" />
        
                 <a onClick={handleRegister} className="mt-5 bg-primary text-white text-center rounded-md py-2">Salvar</a>
-            </form>
+            </form>):(
+                <>
+                <p>Nome:{user.nome}</p>
+                <p>Email:{user.email}</p>
+                <p>Data de nascimento:{user.nascimento}</p>
+                <p>Nome:{user.nome}</p>
+                <a onClick={()=>setIsEdit(true)} className="mt-5 bg-primary text-white text-center rounded-md py-2">Editar</a>
+                </>
+            )}
         </div>
     </div>
 )}
 
-<a onClick={() => setModal(true)} className="rounded-full bg-primary text-white px-4 py-3 fixed bottom-0 right-0"> + </a>
+<a onClick={() => {
+    setModal(true)
+    setIsEdit(true)  
+}} className="rounded-full bg-primary text-white px-4 py-3 fixed bottom-0 right-0"> + </a>
 
     <table>
         <thead>
@@ -80,7 +117,7 @@ function Painel(){
             <th>Ações</th>
         </thead>
         <tbody className="font-secundary">
-            {users.map( u => (
+            {users.map( (u, i) => (
                 <tr>
                     <td>{u.nome}</td>
                     <td>{u.email}</td>
@@ -93,7 +130,7 @@ function Painel(){
                                        text-white
                                        rounded-full
                                        bg-green-500'
-                            onClick={()=> updateUser(u)}
+                            onClick={()=> updateUser(u, i)}
                         >V</a>
                         <a className='cursor-pointer
                                        px-2
@@ -103,6 +140,7 @@ function Painel(){
                                        text-white
                                        rounded-full
                                        bg-red-500'
+                            onClick={()=> deleteUser(i)}
                         >X</a>
                     </td>
                 </tr>
