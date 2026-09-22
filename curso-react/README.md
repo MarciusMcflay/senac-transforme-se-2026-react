@@ -24,3 +24,5 @@ npm install @twind/core@1.1.3
     @twind/preset-tailwind@1.1.4
 
 npm install react-router@7.14.1
+
+npm install @supabase/supabase-js
