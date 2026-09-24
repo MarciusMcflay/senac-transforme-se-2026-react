@@ -21,9 +21,19 @@ function Painel(){
     );
 
     useEffect(()=>{
-        const usersTemp = JSON.parse(localStorage.getItem('users')) 
-        if(usersTemp) setUsers(usersTemp)
-    },[])
+        loadUsers()
+    },[]);
+
+    //READ - LER
+    async function loadUsers(){
+        const {data, error} = await supabase.from('profiles').select('*')
+        if(error){
+            setMsg(error.message)
+            return;
+        } 
+
+        setUsers(data)
+    }
 
     function deleteUser(index){
         const newUsers = users.filter((u, i) => {
@@ -48,35 +58,23 @@ function Painel(){
         });
 
         if(authError){
-            setMsg(authError)
+            setMsg(authError.message)
             setSpiner(false)
             return;
         }
 
-        if(!authData.user){
-            console.log('Não foi possível criar o usuário.');
+        if(!authData){
+            setMsg("Não foi possível cadastrar, verifique a internet")
             setSpiner(false)
             return;
         }
 
-        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        const { 
+            data: loginData, error: loginError 
+        } = await supabase.auth.signInWithPassword({
             email: user.email,
             password: user.senha
         });
-
-
-        if(loginError){
-            console.log(loginError);
-            setSpiner(false)
-            return;
-        }
-
-
-        if(!loginData.user){
-            console.log('Não foi possível autenticar o usuário.');
-            setSpiner(false)
-            return;
-        }
 
         const { error: profileError } = await supabase
             .from('profiles')
@@ -87,14 +85,15 @@ function Painel(){
                 cpf: user.cpf
             });
 
-
         if(profileError){
-            console.log(profileError);
+            setMsg(profileError.message);
             setSpiner(false)
             return;
         }
 
+        loadUsers()
         setSpiner(false)
+        setMsg('Usuário cadastro com sucesso')
     }
 
     return(
@@ -158,9 +157,9 @@ function Painel(){
             </form>): //else 
             (
                 <>
-                  <p> Nome: {user.nome}</p>
-                  <p> Email: {user.email}</p>
-                  <p> Data de Nascimento: {user.nascimento}</p>
+                  <p> Nome: {user.full_name}</p>
+                  <p> CPF: {user.cpf}</p>
+                  <p> Data de Nascimento: {user.birth}</p>
                   <a onClick={()=> setIsEdit(true)} className="mt-5 bg-primary text-black text-center rounded-md py-2 bg-yellow-500">Editar</a>
                 </>    
             )
@@ -173,6 +172,7 @@ function Painel(){
 <a onClick={() => {
     setModal(true)
     setIsEdit(true)
+    setMsg('')
 }} 
     className="rounded-full bg-primary text-white 
     px-4 py-3 fixed bottom-0 right-0"> + </a>
@@ -180,14 +180,14 @@ function Painel(){
     <table>
         <thead>
             <th>Nome</th>
-            <th>Email</th>
+            <th>CPF</th>
             <th>Ações</th>
         </thead>
         <tbody className="font-secundary">
             {users.map( (u,i) => (
                 <tr>
-                    <td>{u.nome}</td>
-                    <td>{u.email}</td>
+                    <td>{u.full_name}</td>
+                    <td>{u.cpf}</td>
                     <td>
                         <a className='cursor-pointer
                                        px-2
