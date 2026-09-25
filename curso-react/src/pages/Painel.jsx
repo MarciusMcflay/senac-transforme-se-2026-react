@@ -35,26 +35,39 @@ function Painel(){
         setUsers(data)
     }
 
-    function deleteUser(index){
-        const newUsers = users.filter((u, i) => {
-            return i != index
-        })
+    async function editUser(){
+        setSpiner(true)
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(user)
+            .eq('id', index);
 
-        setUsers(newUsers)
-        localStorage.setItem('users', JSON.stringify(newUsers))
+        if(error){
+            setMsg(error.message)
+            setSpiner(false)
+            return;
+        }
+
+        setMsg("Usuario editado")
+        setSpiner(false)
+        loadUsers()
     }
 
-    function updateUser(indice){
+    function deleteUser(index){
+        
+    }
+
+    function updateUser(user){
         setModal(true)
-        setUser( users[indice] )
-        setIndex(indice)
+        setUser( user )
+        setIndex(user.id)
     }
 
     async function handleRegister(){
         setSpiner(true)
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: user.email,
-            password: user.senha
+            password: user.password
         });
 
         if(authError){
@@ -73,16 +86,14 @@ function Painel(){
             data: loginData, error: loginError 
         } = await supabase.auth.signInWithPassword({
             email: user.email,
-            password: user.senha
+            password: user.password
         });
 
         const { error: profileError } = await supabase
             .from('profiles')
             .insert({
-                user_id: loginData.user.id,
-                full_name: user.nome,
-                birth: user.nascimento,
-                cpf: user.cpf
+                ...user,
+                user_id: loginData.user.id
             });
 
         if(profileError){
@@ -126,14 +137,19 @@ function Painel(){
             { isEdit ? (
             <form className="flex flex-col">
                 Nome:
-                <input value={user.nome} onChange={ (e) => setUser({...user, nome: e.target.value }) } type="text" placeholder="Digite seu nome completo" />
-                Email:
-                <input value={user.email} onChange={ (e) => setUser({...user, email: e.target.value }) }  type="email" placeholder="Digite o seu melhor email" />
-    
-                Senha:
-                <input onChange={ (e) => setUser({...user, senha: e.target.value }) }  type="password" placeholder="Letra maiúscula e números" />
+                <input value={user.full_name} onChange={ (e) => setUser({...user, full_name: e.target.value }) } type="text" placeholder="Digite seu nome completo" />
+                
+                {index == -1 && (
+                    <>
+                        Email:
+                        <input value={user.email} onChange={ (e) => setUser({...user, email: e.target.value }) }  type="email" placeholder="Digite o seu melhor email" />
+                    
+                        Senha:
+                        <input onChange={ (e) => setUser({...user, password: e.target.value }) }  type="password" placeholder="Letra maiúscula e números" />
+                    </>
+                )}
                 Data de nascimento:
-                <input value={user.nascimento} onChange={ (e) => setUser({...user, nascimento: e.target.value }) }  type="date" />
+                <input value={user.birth} onChange={ (e) => setUser({...user, birth: e.target.value }) }  type="date" />
 
                 CPF:
                 <input value={user.cpf} onChange={ (e) => setUser({...user, cpf: e.target.value }) }  type="text" />
@@ -148,12 +164,21 @@ function Painel(){
                 )
                 }
 
-                <a onClick={handleRegister} 
-                    className="mt-5 bg-primary text-white text-center rounded-md py-2"
+                <a onClick={ 
+                        () => {
+                            if(index == -1)
+                                handleRegister()
+                            else
+                                editUser()
+                        }
+                    } 
+                    className="mt-5 bg-primary text-white text-center rounded-md py-2"  
                 >
                     {spiner? '...':'Salvar'}
                 </a>
+
                 {msg}
+
             </form>): //else 
             (
                 <>
@@ -184,8 +209,8 @@ function Painel(){
             <th>Ações</th>
         </thead>
         <tbody className="font-secundary">
-            {users.map( (u,i) => (
-                <tr>
+            {users.map( (u) => (
+                <tr key={u.id} >
                     <td>{u.full_name}</td>
                     <td>{u.cpf}</td>
                     <td>
@@ -197,7 +222,7 @@ function Painel(){
                                        text-white
                                        rounded-full
                                        bg-green-500'
-                            onClick={()=> updateUser(i)}
+                            onClick={()=> updateUser(u)}
                         >V</a>
                         <a className='cursor-pointer
                                        px-2
@@ -207,7 +232,7 @@ function Painel(){
                                        text-white
                                        rounded-full
                                        bg-red-500'
-                            onClick={()=> deleteUser(i)}
+                            onClick={()=> deleteUser(u)}
                         >X</a>
                     </td>
                 </tr>
